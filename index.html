@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title> <!-- Title for the page -->
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+            position: relative;
+        }
+
+        #image-container {
+            width: 600px;
+            height: 600px;
+            position: relative;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer; /* Change the cursor to indicate it's clickable */
+        }
+
+        /* Tooltip styling */
+        .tooltip {
+            position: absolute;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* Black box styling */
+        #black-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 1);  /* Solid black */
+            opacity: 0;
+            pointer-events: none;  /* Prevent interaction with the overlay */
+            transition: opacity 1s ease;  /* Smooth fade-in */
+            z-index: 9999;  /* Ensure it's on top of everything */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="black-box"></div>  <!-- Black box overlay -->
+    <div id="image-container">
+        <img id="image" src="cake-01.png" alt="Cake 1">
+        <div id="tooltip" class="tooltip">Blow the candle</div>
+    </div>
+
+    <!-- Add the audio element -->
+    <audio id="blowCandleAudio" src="blowcandle.wav" preload="auto"></audio>
+
+    <script>
+        let currentImage = 1;
+        const imageElement = document.getElementById('image');
+        const tooltip = document.getElementById('tooltip');
+        const blackBox = document.getElementById('black-box');
+        const blowCandleAudio = document.getElementById('blowCandleAudio'); // Get the blow candle sound
+
+        // Lower the volume of the blow candle sound
+        blowCandleAudio.volume = 0.2;  // Set volume to 20% (lower than full volume)
+
+        // Image pairs to change between (cake-01, cake-02), (cake-03, cake-04), etc.
+        const imagePairs = [
+            ['cake-01.png', 'cake-02.png'],
+            ['cake-03.png', 'cake-04.png'],
+            ['cake-05.png', 'cake-06.png'],
+            ['cake-07.png', 'cake-08.png'],
+            ['cake-09.png', 'cake-10.png']
+        ];
+
+        let currentPairIndex = 0;
+        let imageSwitchInterval;
+
+        function startImageSwitching() {
+            let switchState = 1;
+            imageSwitchInterval = setInterval(() => {
+                imageElement.src = switchState === 1 ? imagePairs[currentPairIndex][0] : imagePairs[currentPairIndex][1];
+                switchState = switchState === 1 ? 2 : 1;
+            }, 500);  // Switch every 0.5 seconds
+        }
+
+        // Stop image switching
+        function stopImageSwitching() {
+            clearInterval(imageSwitchInterval);
+        }
+
+        // Change the image when any of the images are clicked
+        imageElement.addEventListener('click', () => {
+            // Play the blow candle sound
+            blowCandleAudio.play();
+
+            // Fade in the black box
+            blackBox.style.opacity = 1;  
+
+            // After the black box fades in (1 second), change the image and start switching
+            setTimeout(() => {
+                // Change to the next pair of images
+                currentPairIndex = (currentPairIndex + 1) % imagePairs.length; // Cycle through image pairs
+                imageElement.src = imagePairs[currentPairIndex][0];
+                startImageSwitching();  // Start switching between the new image pair
+            }, 1000);  // Wait 1 second for the black box fade-in
+
+            // Fade out the black box after 2 seconds (1 second after fading in)
+            setTimeout(() => {
+                blackBox.style.opacity = 0;  // Fade out the black box
+            }, 2000);  // Fade out after 2 seconds (1 second after the image change)
+        });
+
+        // Show the tooltip when mouse enters the image area
+        imageElement.addEventListener('mouseenter', () => {
+            tooltip.style.display = 'block';
+        });
+
+        // Position the tooltip exactly at the cursor
+        imageElement.addEventListener('mousemove', (e) => {
+            tooltip.style.left = e.pageX + 'px';  // Tooltip will follow the cursor exactly
+            tooltip.style.top = e.pageY + 'px';   // Tooltip will follow the cursor exactly
+        });
+
+        // Hide the tooltip when mouse leaves the image area
+        imageElement.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+    </script>
+    
+</body>
+</html>
